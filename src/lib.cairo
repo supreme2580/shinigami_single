@@ -2200,7 +2200,7 @@ pub impl EngineImpl<
             }
 
             let mut witness_program: ByteArray = "";
-            if witness::is_witness_program(script_pubkey) {
+            if is_witness_program(script_pubkey) {
                 if script_sig.len() != 0 {
                     return Result::Err(Error::WITNESS_MALLEATED);
                 }
@@ -2218,7 +2218,7 @@ pub impl EngineImpl<
                         i += 1;
                     };
                     if Opcode::is_canonical_push(first_elem, @remaining)
-                        && witness::is_witness_program(@remaining) {
+                        && is_witness_program(@remaining) {
                         witness_program = remaining;
                     } else {
                         return Result::Err(Error::WITNESS_MALLEATED_P2SH);
@@ -2229,7 +2229,7 @@ pub impl EngineImpl<
             }
 
             if witness_program.len() != 0 {
-                let (witness_version, witness_program) = witness::parse_witness_program(
+                let (witness_version, witness_program) = parse_witness_program(
                     @witness_program
                 )?;
                 engine.witness_version = witness_version;
