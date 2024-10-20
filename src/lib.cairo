@@ -6362,3 +6362,371 @@ pub fn number_to_bytecode(script_item: @ByteArray) -> ByteArray {
     }
     bytecode
 }
+
+#[derive(Clone, Drop)]
+struct InputData {
+    ScriptSig: ByteArray,
+    ScriptPubKey: ByteArray
+}
+
+#[derive(Clone, Drop)]
+struct InputDataWithFlags {
+    ScriptSig: ByteArray,
+    ScriptPubKey: ByteArray,
+    Flags: ByteArray
+}
+
+#[derive(Clone, Drop)]
+struct InputDataWithWitness {
+    ScriptSig: ByteArray,
+    ScriptPubKey: ByteArray,
+    Flags: ByteArray,
+    Witness: ByteArray
+}
+
+fn run_with_flags(input: InputDataWithFlags) -> Result<(), felt252> {
+    println!(
+        "Running Bitcoin Script with ScriptSig: '{}', ScriptPubKey: '{}' and Flags: '{}'",
+        input.ScriptSig,
+        input.ScriptPubKey,
+        input.Flags
+    );
+    let mut compiler = CompilerImpl::new();
+    let script_pubkey = compiler.compile(input.ScriptPubKey)?;
+    let compiler = CompilerImpl::new();
+    let script_sig = compiler.compile(input.ScriptSig)?;
+    let tx = EngineInternalTransactionImpl::new_signed(script_sig, script_pubkey.clone());
+    let flags = parse_flags(input.Flags);
+    let hash_cache = HashCacheImpl::new(@tx);
+    let mut engine = EngineImpl::new(@script_pubkey, @tx, 0, flags, 0, @hash_cache)?;
+    let _ = engine.execute()?;
+    Result::Ok(())
+}
+
+fn run_with_witness(input: InputDataWithWitness) -> Result<(), felt252> {
+    println!(
+        "Running Bitcoin Script with ScriptSig: '{}', ScriptPubKey: '{}', Flags: '{}' and Witness: '{}'",
+        input.ScriptSig,
+        input.ScriptPubKey,
+        input.Flags,
+        input.Witness
+    );
+    let mut compiler = CompilerImpl::new();
+    let script_pubkey = compiler.compile(input.ScriptPubKey)?;
+    let compiler = CompilerImpl::new();
+    let script_sig = compiler.compile(input.ScriptSig)?;
+    let witness = parse_witness_input(input.Witness);
+    let value = 1; // TODO
+    let tx = EngineInternalTransactionImpl::new_signed_witness(
+        script_sig, script_pubkey.clone(), witness, value
+    );
+    let flags = parse_flags(input.Flags);
+    let hash_cache = HashCacheImpl::new(@tx);
+    let mut engine = EngineImpl::new(@script_pubkey, @tx, 0, flags, value, @hash_cache)?;
+    let _ = engine.execute()?;
+    Result::Ok(())
+}
+
+fn run(input: InputData) -> Result<(), felt252> {
+    println!(
+        "Running Bitcoin Script with ScriptSig: '{}' and ScriptPubKey: '{}'",
+        input.ScriptSig,
+        input.ScriptPubKey
+    );
+    let mut compiler = CompilerImpl::new();
+    let script_pubkey = compiler.compile(input.ScriptPubKey)?;
+    let compiler = CompilerImpl::new();
+    let script_sig = compiler.compile(input.ScriptSig)?;
+    let tx = EngineInternalTransactionImpl::new_signed(script_sig, script_pubkey.clone());
+    let hash_cache = HashCacheImpl::new(@tx);
+    let mut engine = EngineImpl::new(@script_pubkey, @tx, 0, 0, 0, @hash_cache)?;
+    let _ = engine.execute()?;
+    Result::Ok(())
+}
+
+fn run_with_json(input: InputData) -> Result<(), felt252> {
+    println!(
+        "Running Bitcoin Script with ScriptSig: '{}' and ScriptPubKey: '{}'",
+        input.ScriptSig,
+        input.ScriptPubKey
+    );
+    let mut compiler = CompilerImpl::new();
+    let script_pubkey = compiler.compile(input.ScriptPubKey)?;
+    let compiler = CompilerImpl::new();
+    let script_sig = compiler.compile(input.ScriptSig)?;
+    let tx = EngineInternalTransactionImpl::new_signed(script_sig, script_pubkey.clone());
+    let hash_cache = HashCacheImpl::new(@tx);
+    let mut engine = EngineImpl::new(@script_pubkey, @tx, 0, 0, 0, @hash_cache)?;
+    let _ = engine.execute()?;
+    engine.json();
+    Result::Ok(())
+}
+
+fn debug(input: InputData) -> Result<bool, felt252> {
+    println!(
+        "Running Bitcoin Script with ScriptSig: '{}' and ScriptPubKey: '{}'",
+        input.ScriptSig,
+        input.ScriptPubKey
+    );
+    let mut compiler = CompilerImpl::new();
+    let script_pubkey = compiler.compile(input.ScriptPubKey)?;
+    let compiler = CompilerImpl::new();
+    let script_sig = compiler.compile(input.ScriptSig)?;
+    let tx = EngineInternalTransactionImpl::new_signed(script_sig, script_pubkey.clone());
+    let hash_cache = HashCacheImpl::new(@tx);
+    let mut engine = EngineImpl::new(@script_pubkey, @tx, 0, 0, 0, @hash_cache)?;
+    let mut res = Result::Ok(true);
+    while true {
+        res = engine.step();
+        if res.is_err() {
+            break;
+        }
+        if res.unwrap() == false {
+            break;
+        }
+        engine.json();
+    };
+    res
+}
+
+fn main(input: InputDataWithFlags) -> u8 {
+    let res = run_with_flags(input);
+    match res {
+        Result::Ok(_) => {
+            println!("Execution successful");
+            1
+        },
+        Result::Err(e) => {
+            println!("Execution failed: {}", felt252_to_byte_array(e));
+            0
+        }
+    }
+}
+
+fn main_with_witness(input: InputDataWithWitness) -> u8 {
+    let res = run_with_witness(input);
+    match res {
+        Result::Ok(_) => {
+            println!("Execution successful");
+            1
+        },
+        Result::Err(e) => {
+            println!("Execution failed: {}", felt252_to_byte_array(e));
+            0
+        }
+    }
+}
+
+fn backend_run(input: InputData) -> u8 {
+    let res = run_with_json(input);
+    match res {
+        Result::Ok(_) => {
+            println!("Execution successful");
+            1
+        },
+        Result::Err(e) => {
+            println!("Execution failed: {}", felt252_to_byte_array(e));
+            0
+        }
+    }
+}
+
+fn backend_debug(input: InputData) -> u8 {
+    let res = debug(input);
+    match res {
+        Result::Ok(_) => {
+            println!("Execution successful");
+            1
+        },
+        Result::Err(e) => {
+            println!("Execution failed: {}", felt252_to_byte_array(e));
+            0
+        }
+    }
+}
+
+#[derive(Debug, Drop)]
+pub struct UTXO {
+    pub amount: i64,
+    pub pubkey_script: ByteArray,
+    pub block_height: i32,
+    // TODO: flags?
+}
+
+// TODO: Move validate coinbase here
+
+// TODO: Remove hints?
+// utxo_hints: Set of existing utxos that are being spent by this transaction
+pub fn validate_transaction(
+    tx: @EngineTransaction, flags: u32, utxo_hints: Array<UTXO>
+) -> Result<(), felt252> {
+    let input_count = tx.transaction_inputs.len();
+    if input_count != utxo_hints.len() {
+        return Result::Err('Invalid number of utxo hints');
+    }
+
+    let mut i = 0;
+    let mut err = '';
+    while i != input_count {
+        let utxo = utxo_hints[i];
+        let hash_cache = HashCacheImpl::new(tx);
+        // TODO: Error handling
+        let mut engine = EngineImpl::new(
+            utxo.pubkey_script, tx, i, flags, *utxo.amount, @hash_cache
+        )
+            .unwrap();
+        let res = engine.execute();
+        if res.is_err() {
+            err = res.unwrap_err();
+            break;
+        }
+
+        i += 1;
+    };
+    if err != '' {
+        return Result::Err(err);
+    }
+
+    Result::Ok(())
+}
+
+pub fn validate_transaction_at(
+    tx: @EngineTransaction, flags: u32, prevout: UTXO, at: u32
+) -> Result<(), felt252> {
+    let hash_cache = HashCacheImpl::new(tx);
+    let mut engine = EngineImpl::new(
+        @prevout.pubkey_script, tx, at, flags, prevout.amount, @hash_cache
+    )
+        .unwrap();
+    let res = engine.execute();
+    if res.is_err() {
+        return Result::Err(res.unwrap_err());
+    }
+
+    Result::Ok(())
+}
+
+pub fn validate_p2ms(
+    tx: @EngineTransaction, flags: u32, utxo_hints: Array<UTXO>
+) -> Result<(), felt252> {
+    // Check if the transaction has at least one input
+    if tx.transaction_inputs.len() == 0 {
+        return Result::Err('P2MS: No inputs');
+    }
+
+    let mut i = 0;
+    let input_count = tx.transaction_inputs.len();
+    let mut err = '';
+    loop {
+        if i == input_count {
+            break;
+        }
+
+        let utxo = utxo_hints[i];
+
+        // We'll use the UTXO's pubkey_script as the redeem script
+        let redeem_script = utxo.pubkey_script;
+
+        // Check if the redeem script is not empty
+        if redeem_script.len() == 0 {
+            err = 'P2MS: Empty redeem script';
+            break;
+        }
+
+        // Check if the redeem script follows the P2MS pattern
+        if redeem_script.len() < 4 || redeem_script[redeem_script.len()
+            - 1] != Opcode::OP_CHECKMULTISIG {
+            err = 'P2MS: Invalid redeem script';
+            break;
+        }
+
+        // Extract m and n from the script
+        let m: u32 = (redeem_script[0] - 0x50).try_into().unwrap();
+        let n: u32 = (redeem_script[redeem_script.len() - 2] - 0x50).try_into().unwrap();
+
+        // Check if m and n are valid
+        if m == 0 || n == 0 || m > n || n > 20 {
+            err = 'P2MS: Invalid m or n';
+            break;
+        }
+
+        // Count and validate public keys
+        let mut pubkey_count = 0;
+        let mut script_index = 1; // Start after m
+        while script_index < redeem_script.len() - 2 { // Stop before n and OP_CHECKMULTISIG
+            if script_index >= redeem_script.len() {
+                err = 'P2MS: Unexpected end of script';
+                break;
+            }
+            let key_len: u32 = redeem_script[script_index].into();
+            if key_len != 33 && key_len != 65 {
+                err = 'P2MS: Invalid public key length';
+                break;
+            }
+            pubkey_count += 1;
+            script_index += key_len + 1; // Move to the next key
+        };
+
+        if pubkey_count != n {
+            err = 'P2MS: n != m count';
+            break;
+        }
+
+        // Verify signatures using the EngineImpl
+        let hash_cache = HashCacheImpl::new(tx);
+        let mut engine = EngineImpl::new(redeem_script, tx, i, flags, *utxo.amount, @hash_cache)
+            .unwrap();
+
+        let res = engine.execute();
+        if res.is_err() {
+            err = res.unwrap_err();
+            break;
+        }
+
+        i += 1;
+    };
+
+    if err != '' {
+        Result::Err(err)
+    } else {
+        Result::Ok(())
+    }
+}
+
+#[derive(Drop)]
+struct ValidateRawInput {
+    raw_transaction: ByteArray,
+    utxo_hints: Array<UTXO>
+}
+
+fn run_raw_transaction(mut input: ValidateRawInput) -> u8 {
+    println!("Running Bitcoin Script with raw transaction: '{}'", input.raw_transaction);
+    let raw_transaction = hex_to_bytecode(@input.raw_transaction);
+    let transaction = EngineInternalTransactionTrait::deserialize(raw_transaction);
+    let mut utxo_hints = array![];
+    for hint in input
+        .utxo_hints
+        .span() {
+            println!("UTXO hint: 'amount: {}, script_pubkey: {}'", hint.amount, hint.pubkey_script);
+            let pubkey_script = hex_to_bytecode(hint.pubkey_script);
+            utxo_hints
+                .append(
+                    UTXO {
+                        amount: *hint.amount,
+                        pubkey_script: pubkey_script,
+                        block_height: *hint.block_height,
+                    }
+                );
+        };
+    let res = validate_transaction(@transaction, 0, utxo_hints);
+    match res {
+        Result::Ok(_) => {
+            println!("Execution successful");
+            1
+        },
+        Result::Err(e) => {
+            println!("Execution failed: {}", felt252_to_byte_array(e));
+            0
+        }
+    }
+}
