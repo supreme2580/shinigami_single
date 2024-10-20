@@ -4598,6 +4598,80 @@ pub mod Opcode {
     pub const OP_NOP9: u8 = 184;
     pub const OP_NOP10: u8 = 185;
 
+    use super::opcode_false;
+    use super::opcode_push_data;
+    use super::opcode_push_data_x;
+    use super::opcode_1negate;
+    use super::opcode_reserved;
+    use super::opcode_nop;
+    use super::opcode_n;
+    use super::opcode_if;
+    use super::opcode_notif;
+    use super::opcode_else;
+    use super::opcode_endif;
+    use super::opcode_verify;
+    use super::opcode_return;
+    use super::opcode_toaltstack;
+    use super::opcode_fromaltstack;
+    use super::opcode_2drop;
+    use super::opcode_2dup;
+    use super::opcode_3dup;
+    use super::opcode_2over;
+    use super::opcode_2rot;
+    use super::opcode_2swap;
+    use super::opcode_ifdup;
+    use super::opcode_depth;
+    use super::opcode_drop;
+    use super::opcode_dup;
+    use super::opcode_nip;
+    use super::opcode_over;
+    use super::opcode_disabled;
+    use super::opcode_pick;
+    use super::opcode_roll;
+    use super::opcode_rot;
+    use super::opcode_swap;
+    use super::opcode_tuck;
+    use super::opcode_size;
+    use super::opcode_equal;
+    use super::opcode_equal_verify;
+    use super::opcode_1add;
+    use super::opcode_1sub;
+    use super::opcode_negate;
+    use super::opcode_abs;
+    use super::opcode_not;
+    use super::opcode_0_not_equal;
+    use super::opcode_add;
+    use super::opcode_sub;
+    use super::opcode_bool_and;
+    use super::opcode_bool_or;
+    use super::opcode_numequal;
+    use super::opcode_numequalverify;
+    use super::opcode_numnotequal;
+    use super::opcode_lessthan;
+    use super::opcode_greater_than;
+    use super::opcode_less_than_or_equal;
+    use super::opcode_greater_than_or_equal;
+    use super::opcode_min;
+    use super::opcode_max;
+    use super::opcode_within;
+    use super::opcode_ripemd160;
+    use super::opcode_sha1;
+    use super::opcode_sha256;
+    use super::opcode_hash160;
+    use super::opcode_hash256;
+    use super::opcode_codeseparator;
+    use super::opcode_checksig;
+    use super::opcode_checksigverify;
+    use super::opcode_checkmultisig;
+    use super::opcode_checkmultisigverify;
+    use super::opcode_checklocktimeverify;
+    use super::opcode_checksequenceverify;
+    use super::not_implemented;
+    use super::EngineTransactionInputTrait;
+    use super::EngineTransactionOutputTrait;
+    use super::Engine;
+
+
     pub fn execute<
         T,
         +Drop<T>,
@@ -4711,95 +4785,95 @@ pub mod Opcode {
             94 => opcode_n(14, ref engine),
             95 => opcode_n(15, ref engine),
             96 => opcode_n(16, ref engine),
-            97 => flow::opcode_nop(ref engine, 97),
+            97 => opcode_nop(ref engine, 97),
             98 => opcode_reserved("ver", ref engine),
-            99 => flow::opcode_if(ref engine),
-            100 => flow::opcode_notif(ref engine),
+            99 => opcode_if(ref engine),
+            100 => opcode_notif(ref engine),
             101 => opcode_reserved("verif", ref engine),
             102 => opcode_reserved("vernotif", ref engine),
-            103 => flow::opcode_else(ref engine),
-            104 => flow::opcode_endif(ref engine),
-            105 => flow::opcode_verify(ref engine),
-            106 => flow::opcode_return(ref engine),
-            107 => stack::opcode_toaltstack(ref engine),
-            108 => stack::opcode_fromaltstack(ref engine),
-            109 => stack::opcode_2drop(ref engine),
-            110 => stack::opcode_2dup(ref engine),
-            111 => stack::opcode_3dup(ref engine),
-            112 => stack::opcode_2over(ref engine),
-            113 => stack::opcode_2rot(ref engine),
-            114 => stack::opcode_2swap(ref engine),
-            115 => stack::opcode_ifdup(ref engine),
-            116 => stack::opcode_depth(ref engine),
-            117 => stack::opcode_drop(ref engine),
-            118 => stack::opcode_dup(ref engine),
-            119 => stack::opcode_nip(ref engine),
-            120 => stack::opcode_over(ref engine),
-            121 => stack::opcode_pick(ref engine),
-            122 => stack::opcode_roll(ref engine),
-            123 => stack::opcode_rot(ref engine),
-            124 => stack::opcode_swap(ref engine),
-            125 => stack::opcode_tuck(ref engine),
+            103 => opcode_else(ref engine),
+            104 => opcode_endif(ref engine),
+            105 => opcode_verify(ref engine),
+            106 => opcode_return(ref engine),
+            107 => opcode_toaltstack(ref engine),
+            108 => opcode_fromaltstack(ref engine),
+            109 => opcode_2drop(ref engine),
+            110 => opcode_2dup(ref engine),
+            111 => opcode_3dup(ref engine),
+            112 => opcode_2over(ref engine),
+            113 => opcode_2rot(ref engine),
+            114 => opcode_2swap(ref engine),
+            115 => opcode_ifdup(ref engine),
+            116 => opcode_depth(ref engine),
+            117 => opcode_drop(ref engine),
+            118 => opcode_dup(ref engine),
+            119 => opcode_nip(ref engine),
+            120 => opcode_over(ref engine),
+            121 => opcode_pick(ref engine),
+            122 => opcode_roll(ref engine),
+            123 => opcode_rot(ref engine),
+            124 => opcode_swap(ref engine),
+            125 => opcode_tuck(ref engine),
             126 => opcode_disabled(ref engine),
             127 => opcode_disabled(ref engine),
             128 => opcode_disabled(ref engine),
             129 => opcode_disabled(ref engine),
-            130 => splice::opcode_size(ref engine),
+            130 => opcode_size(ref engine),
             131 => opcode_disabled(ref engine),
             132 => opcode_disabled(ref engine),
             133 => opcode_disabled(ref engine),
             134 => opcode_disabled(ref engine),
-            135 => bitwise::opcode_equal(ref engine),
-            136 => bitwise::opcode_equal_verify(ref engine),
+            135 => opcode_equal(ref engine),
+            136 => opcode_equal_verify(ref engine),
             137 => opcode_reserved("reserved1", ref engine),
             138 => opcode_reserved("reserved2", ref engine),
-            139 => arithmetic::opcode_1add(ref engine),
-            140 => arithmetic::opcode_1sub(ref engine),
+            139 => opcode_1add(ref engine),
+            140 => opcode_1sub(ref engine),
             141 => opcode_disabled(ref engine),
             142 => opcode_disabled(ref engine),
-            143 => arithmetic::opcode_negate(ref engine),
-            144 => arithmetic::opcode_abs(ref engine),
-            145 => arithmetic::opcode_not(ref engine),
-            146 => arithmetic::opcode_0_not_equal(ref engine),
-            147 => arithmetic::opcode_add(ref engine),
-            148 => arithmetic::opcode_sub(ref engine),
+            143 => opcode_negate(ref engine),
+            144 => opcode_abs(ref engine),
+            145 => opcode_not(ref engine),
+            146 => opcode_0_not_equal(ref engine),
+            147 => opcode_add(ref engine),
+            148 => opcode_sub(ref engine),
             149 => opcode_disabled(ref engine),
             150 => opcode_disabled(ref engine),
             151 => opcode_disabled(ref engine),
             152 => opcode_disabled(ref engine),
             153 => opcode_disabled(ref engine),
-            154 => arithmetic::opcode_bool_and(ref engine),
-            155 => arithmetic::opcode_bool_or(ref engine),
-            156 => arithmetic::opcode_numequal(ref engine),
-            157 => arithmetic::opcode_numequalverify(ref engine),
-            158 => arithmetic::opcode_numnotequal(ref engine),
-            159 => arithmetic::opcode_lessthan(ref engine),
-            160 => arithmetic::opcode_greater_than(ref engine),
-            161 => arithmetic::opcode_less_than_or_equal(ref engine),
-            162 => arithmetic::opcode_greater_than_or_equal(ref engine),
-            163 => arithmetic::opcode_min(ref engine),
-            164 => arithmetic::opcode_max(ref engine),
-            165 => arithmetic::opcode_within(ref engine),
-            166 => crypto::opcode_ripemd160(ref engine),
-            167 => crypto::opcode_sha1(ref engine),
-            168 => crypto::opcode_sha256(ref engine),
-            169 => crypto::opcode_hash160(ref engine),
-            170 => crypto::opcode_hash256(ref engine),
-            171 => crypto::opcode_codeseparator(ref engine),
-            172 => crypto::opcode_checksig(ref engine),
-            173 => crypto::opcode_checksigverify(ref engine),
-            174 => crypto::opcode_checkmultisig(ref engine),
-            175 => crypto::opcode_checkmultisigverify(ref engine),
-            176 => flow::opcode_nop(ref engine, 176),
-            177 => locktime::opcode_checklocktimeverify(ref engine),
-            178 => locktime::opcode_checksequenceverify(ref engine),
-            179 => flow::opcode_nop(ref engine, 179),
-            180 => flow::opcode_nop(ref engine, 180),
-            181 => flow::opcode_nop(ref engine, 181),
-            182 => flow::opcode_nop(ref engine, 182),
-            183 => flow::opcode_nop(ref engine, 183),
-            184 => flow::opcode_nop(ref engine, 184),
-            185 => flow::opcode_nop(ref engine, 185),
+            154 => opcode_bool_and(ref engine),
+            155 => opcode_bool_or(ref engine),
+            156 => opcode_numequal(ref engine),
+            157 => opcode_numequalverify(ref engine),
+            158 => opcode_numnotequal(ref engine),
+            159 => opcode_lessthan(ref engine),
+            160 => opcode_greater_than(ref engine),
+            161 => opcode_less_than_or_equal(ref engine),
+            162 => opcode_greater_than_or_equal(ref engine),
+            163 => opcode_min(ref engine),
+            164 => opcode_max(ref engine),
+            165 => opcode_within(ref engine),
+            166 => opcode_ripemd160(ref engine),
+            167 => opcode_sha1(ref engine),
+            168 => opcode_sha256(ref engine),
+            169 => opcode_hash160(ref engine),
+            170 => opcode_hash256(ref engine),
+            171 => opcode_codeseparator(ref engine),
+            172 => opcode_checksig(ref engine),
+            173 => opcode_checksigverify(ref engine),
+            174 => opcode_checkmultisig(ref engine),
+            175 => opcode_checkmultisigverify(ref engine),
+            176 => opcode_nop(ref engine, 176),
+            177 => opcode_checklocktimeverify(ref engine),
+            178 => opcode_checksequenceverify(ref engine),
+            179 => opcode_nop(ref engine, 179),
+            180 => opcode_nop(ref engine, 180),
+            181 => opcode_nop(ref engine, 181),
+            182 => opcode_nop(ref engine, 182),
+            183 => opcode_nop(ref engine, 183),
+            184 => opcode_nop(ref engine, 184),
+            185 => opcode_nop(ref engine, 185),
             _ => not_implemented(ref engine)
         }
     }
